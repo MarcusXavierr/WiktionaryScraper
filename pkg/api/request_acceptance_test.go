@@ -12,16 +12,9 @@ import (
 
 func TestGetDefinition(t *testing.T) {
 	t.Run("happy path", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(more_often_than_not_response))
-		}))
+		server := makeServer(http.StatusOK)
 
-		got, err := api.GetDefinition(server.URL+"/", "More often than not")
-
-		if err != nil {
-			t.Fatal(err)
-		}
+		got, _ := api.GetDefinition(server.URL+"/", "More often than not")
 
 		want := mockParsedResponse
 
@@ -29,6 +22,29 @@ func TestGetDefinition(t *testing.T) {
 			t.Errorf("want %v, but got %v", want, got)
 		}
 	})
+
+	t.Run("returns error when the definition does not exists", func(t *testing.T) {
+		server := makeServer(http.StatusNotFound)
+
+		got, err := api.GetDefinition(server.URL+"/", "whatever")
+
+		if err == nil {
+			t.Fatal("expected error")
+		}
+
+		want := scraper.Response{}
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("want %v, but got %v", want, got)
+		}
+	})
+}
+
+func makeServer(statusHttp int) *httptest.Server {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(statusHttp)
+		w.Write([]byte(more_often_than_not_response))
+	}))
+	return server
 }
 
 var mockParsedResponse = scraper.Response{
