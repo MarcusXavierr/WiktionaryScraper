@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
 
@@ -13,6 +14,11 @@ func GetDefinition(url, sentence string) (scraper.Response, error) {
 	if err != nil {
 		return scraper.Response{}, err
 	}
+
+	if resp.StatusCode != http.StatusOK {
+		return scraper.Response{}, errors.New("Could not get definition")
+	}
+
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
