@@ -9,6 +9,8 @@ import (
 	"github.com/ettle/strcase"
 )
 
+var NotFoundError = errors.New("Could not get definition")
+
 func GetDefinition(url, sentence string) (scraper.Response, error) {
 	resp, err := http.Get(mountUrl(url, sentence))
 	if err != nil {
@@ -16,7 +18,7 @@ func GetDefinition(url, sentence string) (scraper.Response, error) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return scraper.Response{}, errors.New("Could not get definition")
+		return scraper.Response{}, NotFoundError
 	}
 
 	defer resp.Body.Close()
