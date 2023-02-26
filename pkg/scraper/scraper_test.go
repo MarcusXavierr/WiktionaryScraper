@@ -10,19 +10,23 @@ import (
 func TestParseResponse(t *testing.T) {
 	got := scraper.ParseApiResponse(dumb_down_definition)
 
+	want := mockResponseStruct()
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("expected %v but got %v", want, got)
+	}
+}
+
+func mockResponseStruct() scraper.Response {
 	exampleOne := []scraper.Example{"Can you believe that scumbag Steve asked to sleep with her before even asking her name?"}
 	definitionTwo := scraper.Definition{"A sleazy, disreputable or despicable person; lowlife.", exampleOne}
-	want := scraper.Response{
+	return scraper.Response{
 		[]scraper.Usage{
 			{PartOfSpeech: "Noun", Language: "English", Definitions: []scraper.Definition{
 				{"A condom.", []scraper.Example{}},
 				definitionTwo,
 			}},
 		},
-	}
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("expected %v but got %v", want, got)
 	}
 }
 
